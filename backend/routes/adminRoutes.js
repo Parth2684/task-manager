@@ -145,3 +145,110 @@ adminRouter.post("/createTask", authMiddleware, async (req, res) => {
 })
 
 
+adminRouter.get("/tasks", authMiddleware, async (req, res) => {
+    const email = req.email;
+    try{
+        const admin = await adminModel.findOne({email});
+        const taskList = admin.tasks;
+        res.json({
+            msg: "List of tasks",
+            taskList
+        })
+    }catch(err){
+        res.json({
+            msg: "There was some error",
+            error: err
+        })
+    }
+})
+
+
+adminRouter.get("/employees", authMiddleware, async (req, res) => {
+    const email = req.email;
+    try{
+        const admin = await adminModel.findOne({
+            email
+        })
+        const employeeList = admin.employees;
+        res.json({
+            msg: "List of Employees"
+        })
+    }catch(err){
+        res.json({
+            msg: "There was an error",
+            error: err
+        })
+    }
+})
+
+
+const updateTaskSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    assignedTo: z.array(z.object().email()).optional(),
+    taskCompleted: z.boolean().optional()
+})
+
+adminRouter.put("/task", authMiddleware, async (req, res) => {
+    const email = req.email;
+    const taskId = req.query.taskId;
+    const response = req.body;
+    const update = response.safeParse(updateTaskSchema);
+    try{
+        const admin = await adminModel.findOne({
+            email
+        })
+        const taskExist = admin.tasks.find(task => task.taskId === taskId);
+        if(!taskExist){
+            return res.json({
+                msg: "task does not exists"
+            })
+        }
+
+        const updatedTask = await taskModel.findByIdAndUpdate(taskId,{$set: {update}}, {new: true})
+        if(!updatedTask) {
+            return res.json({
+                msg: "There was some error updating the task"
+            })
+        }
+        res.json({
+            msg: "task was successfully updated",
+            updatedTask
+        })
+    }catch(err){
+        res.json({
+            msg: "There was an error",
+            error: err
+        })
+    }
+})
+
+
+adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
+    const email = req.email;
+    const taskId = req.query.taskId;
+    try{
+        const admin = await adminModel.findOne({
+            email
+        })
+        const taskExist = admin.tasks.find(task => task.taskId === taskId)
+        if(!taskExist){
+            return res.json({
+                msg: "task does not exist"
+            })
+        }
+        const deleteTask = await taskModel.findByIdAndDelete({
+            taskId
+        })
+        if(!deleteTask){
+            return res.json({
+                msg: "Due to some error task could not be deleted"
+            })
+        }
+        res.json({
+            msg: "The task was deleted successfuly"
+        })
+    }
+    
+    
+})

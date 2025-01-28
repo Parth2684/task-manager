@@ -28,15 +28,15 @@ const employeeSchema = new Schema({
 const taskSchema = new Schema({
     title: {type: String, required: true},
     description: {type: String, required: true},
-    taskCompleted: {type: Boolean, default: false},
     assignedFrom: {
-        type: mongoose.Schema.type.ObjectId,
+        type: mongoose.Schema.type.email,
         ref: adminModel
     },
     assignedTo: [{
-        type: mongoose.Schema.type.ObjectId,
+        type: mongoose.Schema.type.email,
         ref: employeeModel
-    }]
+    }],
+    taskCompleted: {type: Boolean, default: false}
 })
 
 const adminModel= mongoose.model('admin', adminSchema)

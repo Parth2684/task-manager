@@ -6,12 +6,12 @@ const adminSchema = new Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     tasks: [{
-        type: mongoose.Schema.type.ObjectId,
-        ref: taskModel
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task"
     }],
     employees: [{
-        type: mongoose.Schema.type.ObjectId,
-        ref: employeeModel
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee"
     }]
 })
 
@@ -20,8 +20,8 @@ const employeeSchema = new Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     tasks: [{
-        type: mongoose.Schema.type.ObjectId,
-        ref: taskModel
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task"
     }]
 })
 
@@ -29,12 +29,12 @@ const taskSchema = new Schema({
     title: {type: String, required: true},
     description: {type: String, required: true},
     assignedFrom: {
-        type: mongoose.Schema.type.email,
-        ref: adminModel
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admin"
     },
     assignedTo: [{
-        type: mongoose.Schema.type.email,
-        ref: employeeModel
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee"
     }],
     taskCompleted: {type: Boolean, default: false}
 })

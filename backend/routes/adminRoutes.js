@@ -105,7 +105,7 @@ adminRouter.post("/signin", async (req, res) => {
 const taskSchema = z.object({
     title: z.string(),
     description: z.string(),
-    assignedTo: z.array(z.object().email())
+    assignedTo: z.array(z.object())
 }).strict({
     msg: "extra fields are not allowed"
 })
@@ -185,7 +185,7 @@ adminRouter.get("/employees", authMiddleware, async (req, res) => {
 const updateTaskSchema = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
-    assignedTo: z.array(z.object().email()).optional(),
+    assignedTo: z.array(z.object()).optional(),
     taskCompleted: z.boolean().optional()
 })
 
@@ -248,7 +248,14 @@ adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
         res.json({
             msg: "The task was deleted successfuly"
         })
+    }catch(err){
+        res.json({
+            msg: "Some error in deleting task",
+            errror: err
+        })
     }
-    
-    
 })
+
+module.exports = {
+    adminRouter
+}

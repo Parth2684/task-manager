@@ -53,7 +53,10 @@ adminRouter.post("/createAdmin", async (req, res) => {
                     msg: "Error creating the account"
                 })
             }else{
-                jwt.sign()
+                jwt.sign({
+                    userId: newAdmin._id,
+                    email
+                })
                 return res.json({
                     msg: "Account created successfully"
                 })
@@ -105,7 +108,9 @@ adminRouter.post("/signin", async (req, res) => {
 const taskSchema = z.object({
     title: z.string(),
     description: z.string(),
-    assignedTo: z.array(z.object())
+    assignedTo: z.array(
+        z.string().email("Invalid email format")
+    )
 }).strict({
     msg: "extra fields are not allowed"
 })
@@ -114,8 +119,8 @@ const taskSchema = z.object({
 adminRouter.post("/createTask", authMiddleware, async (req, res) => {
     const email = req.email;
     const {title, description, assignedTo} = req.body;
-    const task = req.body.safeParse(taskSchema);
-    if(!task) {
+    const task = taskSchema.safeParse(req.body);
+    if(!task.success) {
         return res.json({
             msg: "Please provide the task details correctly"
         })
@@ -195,6 +200,7 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
     const taskId = req.query.taskId;
     const response = req.body;
     const update = updateTaskSchema.safeParse(response);
+    const updatedData = update.data
     try{
         const admin = await adminModel.findOne({
             email
@@ -206,7 +212,7 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
             })
         }
 
-        const updatedTask = await taskModel.findByIdAndUpdate(taskId,{$set: {update}}, {new: true})
+        const updatedTask = await taskModel.findByIdAndUpdate(taskId,{$set: {updatedData}}, {new: true})
         if(!updatedTask) {
             return res.json({
                 msg: "There was some error updating the task"

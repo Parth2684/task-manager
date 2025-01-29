@@ -34,7 +34,7 @@ adminRouter.post("/createAdmin", async (req, res) => {
     }
     
     try{
-        const existingEmail = adminModel.findOne({
+        const existingEmail = await adminModel.findOne({
             email
         })
         if(existingEmail){
@@ -171,7 +171,8 @@ adminRouter.get("/employees", authMiddleware, async (req, res) => {
         })
         const employeeList = admin.employees;
         res.json({
-            msg: "List of Employees"
+            msg: "List of Employees",
+            employeeList
         })
     }catch(err){
         res.json({
@@ -193,7 +194,7 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
     const email = req.email;
     const taskId = req.query.taskId;
     const response = req.body;
-    const update = response.safeParse(updateTaskSchema);
+    const update = updateTaskSchema.safeParse(response);
     try{
         const admin = await adminModel.findOne({
             email
@@ -237,9 +238,7 @@ adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
                 msg: "task does not exist"
             })
         }
-        const deleteTask = await taskModel.findByIdAndDelete({
-            taskId
-        })
+        const deleteTask = await taskModel.findByIdAndDelete(taskId)
         if(!deleteTask){
             return res.json({
                 msg: "Due to some error task could not be deleted"
@@ -251,7 +250,7 @@ adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
     }catch(err){
         res.json({
             msg: "Some error in deleting task",
-            errror: err
+            error: err
         })
     }
 })

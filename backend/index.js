@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { adminRouter } = require("./routes/adminRoutes");
 const { errorHandlerMiddleware } = require("./middlewares/error");
+const { userRouter } = require("./routes/userRoutes");
 const port = 3000;
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -22,6 +23,7 @@ app.use(errorHandlerMiddleware)
 
 
 app.use("/api/v1/admin", adminRouter)
+app.use("/api/v1/employee", userRouter)
 
 
 app.listen(port, ()=> {

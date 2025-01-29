@@ -24,16 +24,16 @@ const accountSchema = z.object({
 
 
 adminRouter.post("/createAdmin", async (req, res) => {
-    const {name, email, password} = req.body;
-    const credentials = accountSchema.safeParse(req.body)
-    if(!credentials.success){
-        return res.json({
-            msg: "Invalid inputs",
-            error: credentials.error
-        })
-    }
     
     try{
+        const {name, email, password} = req.body;
+        const credentials = accountSchema.safeParse(req.body)
+        if(!credentials.success){
+            return res.json({
+                msg: "Invalid inputs",
+                error: credentials.error
+            })
+        }
         const existingEmail = await adminModel.findOne({
             email
         })
@@ -41,7 +41,7 @@ adminRouter.post("/createAdmin", async (req, res) => {
             return res.status(403).json({
                 msg: "This mail already exists"
             })
-        }else{
+        }
             const hashedPassword = await bcrypt.hash(password, 5);
             const newAdmin = await adminModel.create({
                 name,
@@ -56,12 +56,12 @@ adminRouter.post("/createAdmin", async (req, res) => {
                 jwt.sign({
                     userId: newAdmin._id,
                     email
-                })
+                },JWT_SECRET)
                 return res.json({
-                    msg: "Account created successfully"
+                    msg: "Account created successfully",
                 })
             }
-        }
+        
     }catch(err){
         res.json({
             msg: err

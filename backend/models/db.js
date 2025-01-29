@@ -36,7 +36,10 @@ const taskSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Employee"
     }],
-    taskCompleted: {type: Boolean, default: false}
+    taskCompletedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee"
+    }] 
 })
 
 const adminModel= mongoose.model('admin', adminSchema)

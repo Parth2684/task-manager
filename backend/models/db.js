@@ -8,10 +8,6 @@ const adminSchema = new Schema({
     tasks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Task"
-    }],
-    employees: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Employee"
     }]
 })
 
@@ -42,9 +38,9 @@ const taskSchema = new Schema({
     }] 
 })
 
-const adminModel= mongoose.model('admin', adminSchema)
-const employeeModel = mongoose.model('employee', employeeSchema)
-const taskModel = mongoose.model('task', taskSchema)
+const adminModel= mongoose.model('Admin', adminSchema)
+const employeeModel = mongoose.model('Employee', employeeSchema)
+const taskModel = mongoose.model('Task', taskSchema)
 
 module.exports= {
     adminModel,

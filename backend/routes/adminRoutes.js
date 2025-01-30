@@ -3,7 +3,7 @@ const adminRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const z = require("zod");
-const { adminModel, taskModel } = require("../models/db");
+const { adminModel, taskModel, employeeModel } = require("../models/db");
 const { JWT_SECRET } = require("../config");
 const { authMiddleware } = require("../middlewares/auth")
 
@@ -109,15 +109,15 @@ const taskSchema = z.object({
     title: z.string(),
     description: z.string(),
     assignedTo: z.array(
-        z.string().email("Invalid email format")
-    )
-}).strict({
-    msg: "extra fields are not allowed"
-})
+        z.string().email()
+    ).nonempty({
+        msg: "Should not be empty"
+    })
+}).strict()
 
 
 adminRouter.post("/createTask", authMiddleware, async (req, res) => {
-    const email = req.email;
+    const assignedFrom = req.userId;
     const {title, description, assignedTo} = req.body;
     const task = taskSchema.safeParse(req.body);
     if(!task.success) {
@@ -126,35 +126,69 @@ adminRouter.post("/createTask", authMiddleware, async (req, res) => {
         })
     }
     try{
+        const assignedToEmail = await employeeModel.find({
+            email: {$in: assignedTo}
+        },"_id")
+
+        const idsToDb= assignedToEmail.map(assignedToEmail => assignedToEmail._id)
+
         const createTask = await taskModel.create({
             title,
             description,
-            assignedFrom: email,
-            assignedTo
+            assignedFrom,
+            assignedTo: idsToDb
         })
-        if(!createTask){
+
+        const taskId = createTask._id;
+        for (const employeeId of idsToDb){
+            await employeeModel.findByIdAndUpdate(employeeId,
+                {$push: {tasks: taskId}},
+                {new: true}
+            );
+        }
+
+        const addToAdmin = await adminModel.findByIdAndUpdate(assignedFrom,
+            {$push: {tasks: taskId}},
+            {new: true}
+        )
+        if(!(createTask || addToAdmin) ){
             return res.json({
                 msg: "There was some error while creating task"
             })
         }else{
             return res.json({
-                msg: "The task was successfully created and assigned to respective employees"
+                msg: "The task was successfully created and assigned to respective employees",
+                task: createTask
             })
         }
+
+       
+
     }catch(err){
         res.json({
             msg: "There was an error",
-            error: err
+            error: err.message
         })
     } 
 })
 
 
 adminRouter.get("/tasks", authMiddleware, async (req, res) => {
-    const email = req.email;
+    const adminId = req.userId;
     try{
-        const admin = await adminModel.findOne({email});
-        const taskList = admin.tasks;
+        const admin = await adminModel.findById(adminId).populate('tasks');
+        if (!admin) {
+            return res.json({
+                msg: "Admin not found"
+            });
+        }
+        const taskIds = admin.tasks;
+
+        const taskList = []
+        for (const ids of taskIds){
+            const task = await taskModel.findById(ids)
+            taskList.push(task)
+        }
         res.json({
             msg: "List of tasks",
             taskList
@@ -162,7 +196,7 @@ adminRouter.get("/tasks", authMiddleware, async (req, res) => {
     }catch(err){
         res.json({
             msg: "There was some error",
-            error: err
+            error: err || err.message
         })
     }
 })
@@ -171,10 +205,7 @@ adminRouter.get("/tasks", authMiddleware, async (req, res) => {
 adminRouter.get("/employees", authMiddleware, async (req, res) => {
     const email = req.email;
     try{
-        const admin = await adminModel.findOne({
-            email
-        })
-        const employeeList = admin.employees;
+        const employeeList = await employeeModel.find({});
         res.json({
             msg: "List of Employees",
             employeeList
@@ -192,7 +223,7 @@ const updateTaskSchema = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
     assignedTo: z.array(z.object()).optional(),
-    taskCompleted: z.boolean().optional()
+    completedBy: z.string().optional()
 })
 
 adminRouter.put("/task", authMiddleware, async (req, res) => {
@@ -205,14 +236,14 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
         const admin = await adminModel.findOne({
             email
         })
-        const taskExist = admin.tasks.find(task => task.taskId === taskId);
+        const taskExist = admin.tasks.includes(taskId);
         if(!taskExist){
             return res.json({
                 msg: "task does not exists"
             })
         }
 
-        const updatedTask = await taskModel.findByIdAndUpdate(taskId,{$set: {updatedData}}, {new: true})
+        const updatedTask = await taskModel.findByIdAndUpdate(taskId,{$set: updatedData}, {new: true})
         if(!updatedTask) {
             return res.json({
                 msg: "There was some error updating the task"
@@ -233,6 +264,7 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
 
 adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
     const email = req.email;
+    const adminId = req.userId
     const taskId = req.query.taskId;
     try{
         const admin = await adminModel.findOne({
@@ -245,7 +277,12 @@ adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
             })
         }
         const deleteTask = await taskModel.findByIdAndDelete(taskId)
-        if(!deleteTask){
+        const updateAdminModel = await adminModel.findByIdAndUpdate(adminId,
+            {$pop: {tasks: taskId}},
+            {new: true}
+        )
+
+        if(!(deleteTask || updateAdminModel)){
             return res.json({
                 msg: "Due to some error task could not be deleted"
             })

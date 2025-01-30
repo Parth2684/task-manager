@@ -48,7 +48,7 @@ userRouter.post("/signup", async (req, res) => {
                 msg: "You are a Admin"
             })
         }
-        const hashedPassword = bcrypt.hash(password, 5)
+        const hashedPassword = await bcrypt.hash(password, 5)
         const newUser = await employeeModel.create({
             name,
             email,
@@ -87,7 +87,7 @@ userRouter.post("/signin", async (req, res) => {
                 msg: "User does not exist"
             })
         }
-        const correctPassword = bcrypt.compare(password, user.password)
+        const correctPassword = await bcrypt.compare(password, user.password)
         if(!correctPassword){
             return res.json({
                 msg: "Incorrect Password"
@@ -96,7 +96,7 @@ userRouter.post("/signin", async (req, res) => {
         const token = jwt.sign({
             email,
             userId: user._id
-        })
+        }, JWT_SECRET)
         res.json({
             msg: "Successfully Logged in",
             token
@@ -118,7 +118,7 @@ userRouter.get("/tasks", authMiddleware, async(req, res) => {
         const task = user.tasks;
         res.json({
             msg: "Following are Your tasks",
-            tasks
+            task
         })
     }catch(err){
         return res.json({

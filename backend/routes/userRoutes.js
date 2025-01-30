@@ -115,10 +115,12 @@ userRouter.get("/tasks", authMiddleware, async(req, res) => {
         const user = await employeeModel.findOne({
             email
         })
-        const task = user.tasks;
+        const taskId = user.tasks;
+
+        const taskList = await taskModel.findById(taskId)
         res.json({
             msg: "Following are Your tasks",
-            task
+            taskList
         })
     }catch(err){
         return res.json({
@@ -131,10 +133,9 @@ userRouter.get("/tasks", authMiddleware, async(req, res) => {
 
 userRouter.put("/completeTask", authMiddleware, async (req, res) => {
     try{
-        const user = {
-            employeeId: req.userId
-        }
-        const taskId = req.body;
+        const user = req.userId
+        
+        const taskId = req.query.taskId;
         const task = await taskModel.findById(taskId);
         task.taskCompletedBy.push(user);
         await task.save()

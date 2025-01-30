@@ -264,25 +264,20 @@ adminRouter.put("/task", authMiddleware, async (req, res) => {
 
 adminRouter.delete("/deleteTask", authMiddleware, async (req, res) => {
     const email = req.email;
-    const adminId = req.userId
     const taskId = req.query.taskId;
     try{
         const admin = await adminModel.findOne({
             email
         })
-        const taskExist = admin.tasks.find(task => task.taskId === taskId)
+        const taskExist = admin.tasks.includes(taskId)
         if(!taskExist){
             return res.json({
                 msg: "task does not exist"
             })
         }
         const deleteTask = await taskModel.findByIdAndDelete(taskId)
-        const updateAdminModel = await adminModel.findByIdAndUpdate(adminId,
-            {$pop: {tasks: taskId}},
-            {new: true}
-        )
-
-        if(!(deleteTask || updateAdminModel)){
+        
+        if(!deleteTask){
             return res.json({
                 msg: "Due to some error task could not be deleted"
             })

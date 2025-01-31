@@ -182,16 +182,29 @@ adminRouter.get("/tasks", authMiddleware, async (req, res) => {
                 msg: "Admin not found"
             });
         }
-        const taskIds = admin.tasks;
 
-        const taskList = []
-        for (const ids of taskIds){
-            const task = await taskModel.findById(ids)
-            taskList.push(task)
-        }
+        
+        const taskList = await taskModel.find({ _id: { $in: admin.tasks } });
+        
+        const tasksWithEmployeeEmails = await Promise.all(taskList.map(async (task) => {
+            
+            const employees = await employeeModel.find({ _id: { $in: task.assignedTo } }).select('email');
+            
+            const taskCompletedByEmails = await employeeModel.find({_id: { $in: task.completedBy}}).select('email');    
+            return {
+                ...task.toObject(),
+                assignedToEmail: employees.map(emp => emp.email),
+                completedEmails: taskCompletedByEmails.map(employee => employee.email)
+            };
+        }));
+
+
+        
+        
         res.json({
             msg: "List of tasks",
-            taskList
+            taskList: tasksWithEmployeeEmails
+            
         })
     }catch(err){
         res.json({

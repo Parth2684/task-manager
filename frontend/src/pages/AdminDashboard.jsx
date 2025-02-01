@@ -3,6 +3,7 @@ import axios from "axios";
 import Tasks from "../components/Tasks";
 import TopSection from "../components/TopSection";
 import EmployeeList from "../components/EmployeeList";
+import CreateTask from "../components/CreateTask";
 
 export default function AdminDashboard () {
     const [tasks, setTask] = useState([]);
@@ -24,16 +25,25 @@ export default function AdminDashboard () {
     return <div>
         <TopSection />
         <div className="flex">
-            <div className="ml-3" >
-                <h2 className="font-bold text-2xl">Tasks: </h2>
-                <Tasks tasks={tasks} />
+        <div className=" m-5 border border-b-black rounded-xl p-2 flex flex-col items-center max-w-xl self-start">
+                <h2 className="font-bold text-xl">Create Task: </h2>
+                <CreateTask />
             </div>
-            <div className="ml-10">
+            <div className="m-3">
                 <h2 className="font-bold text-xl">Employees: </h2>
                 <EmployeeList />
             </div>
+            </div>
+
+            <div className="m-3" >
+                <h2 className="font-bold text-xl">Tasks: </h2>
+                <Tasks tasks={tasks} />
+            </div>
             
-        </div>
+            
+        
+            
+        
         
         
     </div>

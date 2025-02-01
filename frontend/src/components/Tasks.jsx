@@ -8,7 +8,7 @@ export default function Tasks({tasks}) {
    
 
     return <div>
-        <table className="table-auto w-3xl border-collapse border-black ">
+        <table className="table-auto w-2xl border-collapse border-black ">
             <thead className="text-md border-1">
                 <tr>
                     <th className="border">Title</th>
@@ -47,7 +47,7 @@ export default function Tasks({tasks}) {
                                 }
                             </ul>
                         </td>
-                        <td>
+                        <td className="border">
                             <Button title="Delete" onClick={async () => {
                                 await axios.delete("http://localhost:3000/api/v1/admin/deleteTask", {
                                     params: {

@@ -15,7 +15,7 @@ export default function EmployeeList () {
         fetchEmployees()
     },[])
     return <div>
-        <table className="table-auto max-w-md border border-collapse border-black ">
+        <table className="table-auto max-w-xl border border-collapse border-black ">
             <thead className="text-md ">
                 <tr>
                     <th className="border">Name</th>

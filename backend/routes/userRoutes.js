@@ -62,7 +62,8 @@ userRouter.post("/signup", async (req, res) => {
         }
         const token = jwt.sign({
             userId: newUser._id,
-            email
+            email,
+            isAdmin: false
         },JWT_SECRET)
         res.json({
             msg: "Account created successfully",
@@ -96,7 +97,8 @@ userRouter.post("/signin", async (req, res) => {
         }
         const token = jwt.sign({
             email,
-            userId: user._id
+            userId: user._id,
+            isAdmin: false
         }, JWT_SECRET)
         res.json({
             msg: "Successfully Logged in",

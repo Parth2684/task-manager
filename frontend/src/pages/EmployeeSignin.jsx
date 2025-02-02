@@ -4,7 +4,7 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import axios from "axios";
 import TopSection from "../components/TopSection";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function EmployeeSignin () {
     const [email, setEmail] = useState("");
@@ -33,9 +33,13 @@ export default function EmployeeSignin () {
                     }catch(err){
                         console.error(err)
                     }
-                    
+                
                 }} />
+                <div className="text-sm text-blue-500 text-end">
+                   <Link to="/admin/signin">Are You A Admin ?</Link>   
                  </div>
+                 </div>
+                 
                 
         </div>
     </div> 

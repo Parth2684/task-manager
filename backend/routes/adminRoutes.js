@@ -55,7 +55,8 @@ adminRouter.post("/createAdmin", async (req, res) => {
             }else{
                 jwt.sign({
                     userId: newAdmin._id,
-                    email
+                    email,
+                    isAdmin: true
                 },JWT_SECRET)
                 return res.json({
                     msg: "Account created successfully",
@@ -89,7 +90,8 @@ adminRouter.post("/signin", async (req, res) => {
         }else{
             const token = jwt.sign({
                 userId: adminExist._id,
-                email
+                email,
+                isAdmin: true
             }, JWT_SECRET)
             res.json({
                 msg: "Login successfull",

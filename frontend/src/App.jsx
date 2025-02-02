@@ -10,6 +10,7 @@ import AdminSignin from './pages/AdminSignin'
 import AdminDashboard from './pages/AdminDashboard'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import EmployeeDashboard from './pages/EmployeeDashboard'
+import RedirectFromSlash from './pages/RedirectFromSlash'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,6 +19,7 @@ function App() {
     <>
       <BrowserRouter>
       <Routes>
+        <Route path='/' element={<RedirectFromSlash />} />
         <Route path='/admin/signin' element={<AdminSignin />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/employee/signup' element={<Signup />} />

@@ -8,7 +8,9 @@ const adminSchema = new Schema({
     tasks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Task"
-    }]
+    }],
+    isAdmin: {type: Boolean, default: true}
+
 })
 
 const employeeSchema = new Schema({
@@ -18,7 +20,8 @@ const employeeSchema = new Schema({
     tasks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Task"
-    }]
+    }],
+    isAdmin: {type: Boolean, default: false}
 })
 
 const taskSchema = new Schema({

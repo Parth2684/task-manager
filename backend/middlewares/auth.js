@@ -18,6 +18,7 @@ function authMiddleware(req, res, next){
     }else{
         req.userId = decoded.userId
         req.email = decoded.email
+        req.isAdmin = decoded.isAdmin
         next();
     }
 }

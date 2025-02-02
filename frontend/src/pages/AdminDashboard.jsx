@@ -6,7 +6,7 @@ import EmployeeList from "../components/EmployeeList";
 import CreateTask from "../components/CreateTask";
 
 export default function AdminDashboard () {
-    const [tasks, setTask] = useState([]);
+    const [task, setTask] = useState([]);
     useEffect(()=> {
         const fetchTask = async () => {
             try{
@@ -23,7 +23,7 @@ export default function AdminDashboard () {
         fetchTask()
     },[])
     return <div>
-        <TopSection />
+        <TopSection homeNavigate="/admin/dashboard" signOutNavigate="/admin/signin" showSignOut={true} />
         <div className="flex justify-around">
         <div className=" my-10 border border-b-black rounded-xl p-2 flex flex-col items-center min-w-lg self-start">
                 <h2 className="font-bold text-xl m-1">Create Task </h2>
@@ -37,7 +37,7 @@ export default function AdminDashboard () {
 
             <div className="mx-10" >
                 <h2 className="font-bold text-xl my-4">Tasks: </h2>
-                <Tasks tasks={tasks} />
+                <Tasks tasks={task} />
             </div>
             
             

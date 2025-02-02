@@ -4,11 +4,13 @@ import PageHeading from "../components/PageHeading";
 import Button from "../components/Button";
 import axios from "axios";
 import TopSection from "../components/TopSection";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup () {
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
     const [password, setPassword] = useState("")
+    const navigate = useNavigate()
 
     return <div>
         <TopSection />
@@ -24,7 +26,11 @@ export default function Signup () {
                 email,
                 password
             })
-            localStorage.setItem("token", response.data.token)
+            if(response.data.token) {
+                localStorage.setItem("token", response.data.token)
+                navigate("/employee/dashboard")
+            }
+                    else {alert(response.data.msg)}
         }} />
             </div>
         

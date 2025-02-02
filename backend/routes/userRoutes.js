@@ -3,9 +3,10 @@ const userRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const z = require("zod");
 const bcrypt = require("bcrypt");
-const { employeeModel, taskModel, adminModel } = require("../models/db");
+const { employeeModel, taskModel, adminModel } = require("../models/db");   
 const { JWT_SECRET } = require("../config");
 const { authMiddleware } = require("../middlewares/auth");
+const { default: mongoose } = require("mongoose");
 
 
 const signupBodySchema = z.object({
@@ -117,10 +118,20 @@ userRouter.get("/tasks", authMiddleware, async(req, res) => {
         })
         const taskId = user.tasks;
 
-        const taskList = await taskModel.findById(taskId)
+        const taskList = await taskModel.find({ _id: { $in: taskId } })  
+        const taskAssignedByEmail = await Promise.all(taskList.map(async (task) => {
+            const completedBy = await employeeModel.find({_id: task.taskCompletedBy}).select("email")
+            const assignedFrom = await adminModel.find({_id: task.assignedFrom}).select("email")
+            return {
+                ...task.toObject(),
+                completedByEmails: completedBy.map(emp => emp.email),
+                assignedFromEmail: assignedFrom.map(admin => admin.email)
+            }
+        }))
+
         res.json({
             msg: "Following are Your tasks",
-            taskList
+            taskList: taskAssignedByEmail
         })
     }catch(err){
         return res.json({
@@ -134,11 +145,16 @@ userRouter.get("/tasks", authMiddleware, async(req, res) => {
 userRouter.put("/completeTask", authMiddleware, async (req, res) => {
     try{
         const user = req.userId
-        
-        const taskId = req.query.taskId;
-        const task = await taskModel.findById(taskId);
-        task.taskCompletedBy.push(user);
-        await task.save()
+        const taskId = req.body.taskId;
+        const task = await taskModel.findByIdAndUpdate(taskId,
+            {$addToSet: {taskCompletedBy: user}},
+            {new: true} 
+        )
+        if(!task){
+            return res.json({
+                msg: "error saving data to db"
+            })
+        }
         res.json({
             msg:"Task completed successfully"
         });

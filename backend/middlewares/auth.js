@@ -6,7 +6,7 @@ function authMiddleware(req, res, next){
     
     if(!token){
         return res.json({
-            msg: "Empty Toke Authorization Error"
+            msg: "Empty Token Authorization Error"
         })
     }
 

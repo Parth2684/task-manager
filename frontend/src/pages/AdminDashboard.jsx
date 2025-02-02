@@ -24,19 +24,19 @@ export default function AdminDashboard () {
     },[])
     return <div>
         <TopSection />
-        <div className="flex">
-        <div className=" m-5 border border-b-black rounded-xl p-2 flex flex-col items-center max-w-xl self-start">
-                <h2 className="font-bold text-xl">Create Task: </h2>
+        <div className="flex justify-around">
+        <div className=" my-10 border border-b-black rounded-xl p-2 flex flex-col items-center min-w-lg self-start">
+                <h2 className="font-bold text-xl m-1">Create Task </h2>
                 <CreateTask />
             </div>
-            <div className="m-3">
-                <h2 className="font-bold text-xl">Employees: </h2>
+            <div className="m-5">
+                <h2 className="font-bold text-xl my-4">Employees: </h2>
                 <EmployeeList />
             </div>
             </div>
 
-            <div className="m-3" >
-                <h2 className="font-bold text-xl">Tasks: </h2>
+            <div className="mx-10" >
+                <h2 className="font-bold text-xl my-4">Tasks: </h2>
                 <Tasks tasks={tasks} />
             </div>
             
